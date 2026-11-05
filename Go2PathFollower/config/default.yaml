@@ -1,0 +1,70 @@
+# Go2 経路追従コントローラの設定。省略したキーは既定値（go2pf/config.py）になる。
+# 未知のキーを書くとエラーで止まる（タイプミス対策）。
+
+osc:
+  host: 0.0.0.0          # 受信アドレス（全インターフェース）
+  port: 9000             # TouchDesigner の OSC Out の送信先ポート
+  address: /dog/pose     # 引数: x, y, yaw, found
+
+control:
+  rate_hz: 30            # 制御ループの周期 [Hz]（10〜100）
+  lookahead: 0.5         # 先読み距離 [m]
+  speed: 0.3             # 既定の前進速度 [m/s]（ルートの点に speed がなければこれ）
+  speed_max: 0.6         # 前進速度の上限 [m/s]（コード側の絶対上限は 1.0）
+  k_yaw: 1.5             # 旋回ゲイン vyaw = k_yaw * e
+  vyaw_max: 1.0          # 旋回速度の上限 [rad/s]
+  k_lateral: 0.0         # 横ずれ補正ゲイン [1/s]。0 なら vy は常に 0
+  vy_max: 0.2            # 横移動の上限 [m/s]
+  accel_vx: 0.5          # 加速度制限 [m/s^2]
+  accel_vy: 0.5          # [m/s^2]
+  accel_vyaw: 2.0        # [rad/s^2]
+  goal_radius: 0.25      # 最終点の到達判定半径 [m]
+  loop: false            # true なら最後の点から最初の点へ戻って周回
+  search_back: 0.2       # 最近点探索の窓（現在の進捗から戻ってよい距離）[m]
+  search_ahead: 1.0      # 同（進んでよい距離）[m]。ルートが交差・接近する場所での飛びを防ぐ
+
+safety:
+  pose_timeout: 0.5      # 最後の位置受信からこの秒数を超えたら停止
+  resume_after_tracking_loss: true  # 見失いから復帰したら自動で再開（false なら再アームが必要）
+  geofence:              # 区画の範囲 [m]。ロボット（マーカー）の位置がこの外に出たら停止
+    x_min: -2.3
+    x_max: 2.3
+    y_min: -2.3
+    y_max: 2.3
+  geofence_horizon: 0.5  # 現在の指令で この秒数進んだ位置が外に出るなら停止
+
+go2:
+  interface: eth0        # ロボットとつながっている NIC 名
+  domain_id: 0           # DDS ドメイン ID（公式サンプルと同じ 0）
+  rpc_timeout: 1.0       # StopMove などの応答待ち [s]
+  check_motion_mode: true  # 起動時にモーションモードを表示（切り替えはしない）
+
+mock:
+  pose_rate_hz: 30       # 疑似 OSC の送信周期
+  physics_rate_hz: 200
+  velocity_tau: 0.15     # 指令への追従の時定数 [s]
+  noise_pos: 0.01        # 位置ノイズの標準偏差 [m]
+  noise_yaw: 0.02        # 向きノイズの標準偏差 [rad]
+  latency: 0.05          # 検出遅延 [s]
+  dropout_per_s: 0.0     # 見失いの発生頻度 [回/s]
+  dropout_duration: 0.3  # 見失いの長さ [s]
+  dropout_mode: found0   # found0: found=0 を送る / silent: 送信が途絶える
+  start: null            # 例: {x: -1.5, y: -1.8, yaw: 0.0}。null ならルートの始点で最初の区間を向く
+  seed: null
+
+remote:                  # TouchDesigner からの操作（/go2pf/config, /go2pf/arm, /go2pf/estop, /go2pf/quit）
+  enabled: true
+  status_port: 9001      # 状態（/go2pf/status など）を操作元のこのポートへ送り返す
+  status_rate_hz: 15
+  allow_hosts: []        # 空なら、最初に /go2pf/config を送ってきたホストだけを操作元として受け付ける
+                         # （/go2pf/estop はどこからでも受け付ける）
+  controller_timeout: 0  # 操作元から この秒数なにも届かなければ停止して終了（TD から起動するときは 3 を渡す）
+
+log:
+  enabled: true
+  dir: logs
+
+viz:
+  enabled: true
+  fps: 15
+  trail: 600

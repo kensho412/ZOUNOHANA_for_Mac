@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+Icon?
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.deps/
+
+# GitHub の上限（100MB）を超える動画
+test1.mp4
+test1 Project/Samples/Imported/IMG_9596.MOV

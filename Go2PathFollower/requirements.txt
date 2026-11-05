@@ -1,0 +1,5 @@
+python-osc>=1.8
+PyYAML>=6.0
+matplotlib>=3.5
+# 実機 (--backend go2) のときだけ必要。README の「実機のセットアップ」を参照
+# unitree_sdk2py  (git clone https://github.com/unitreerobotics/unitree_sdk2_python && pip install -e .)

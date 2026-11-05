@@ -1,0 +1,9 @@
+# MockBackend の負荷試験用: ノイズ・遅延・見失いを強めにする
+mock:
+  noise_pos: 0.03
+  noise_yaw: 0.06
+  latency: 0.12
+  dropout_per_s: 0.3
+  dropout_duration: 0.4
+  dropout_mode: found0
+  start: {x: -1.2, y: -1.9, yaw: 1.2}
