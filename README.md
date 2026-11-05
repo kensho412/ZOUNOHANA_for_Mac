@@ -41,23 +41,30 @@ Unitree Go2 EDU を使ったサウンドインスタレーションの、Mac 側
 
 ## OSC
 
-### ロボット → Max（`innu.maxpat` の `udpreceive 9898`）
+### センサー → Max（`innu.maxpat` の `udpreceive`）
+
+入力元によって、受けるポートが違う。`udpreceive` の番号を入力元に合わせて切り替える。
+
+| ポート | 入力元 |
+|---|---|
+| 9898 | Isaac Sim（Windows PC） |
+| 9871 | `osc_replay_ctrl.py`（記録 CSV の再生） |
 
 | アドレス | 引数 | 内容 |
 |---|---|---|
 | `/gait/force` | `i i i i` | 足裏の力。FR FL RR RL の順。FL は他の足の約半分の値が出る |
 | `/imu/rpy` | `f f f` | roll, pitch, yaw [rad] |
-| `/hit` | | トリガー。`/hitT` を 8484 へ送る |
+| `/hit` | | Isaac Sim からのトリガー。`/hitT` を 8484 へ送る |
 
 ### Max → 外部
 
 | 送り先 | アドレス | 内容 |
 |---|---|---|
 | `127.0.0.1:6060` | `/note/FR` … `/note/RL`, `/vel/*`, `/imu/FR` … `/imu/RL` | Ableton 向けの音符・ベロシティ・定位 |
-| `127.0.0.1:8010` | `/vel/*` | ベロシティのみ |
+| `127.0.0.1:8010` | `/vel/*` | Ableton 向けのベロシティ |
 | `127.0.0.1:8484` | `/hitT` | トリガー |
 | `127.0.0.1:9880` | `/replay 1/0` | `osc_replay_ctrl.py` の再生・停止 |
-| `100.71.224.104:9872` | `/grid/height` | `p ashiba`（足場のグリッド）の値 |
+| `100.71.224.104:9872` | `/grid/height` | Isaac Sim（Windows PC）へ。`p ashiba`（足場のグリッド）の高さ |
 
 パッチの中身:
 
@@ -79,10 +86,10 @@ Unitree Go2 EDU を使ったサウンドインスタレーションの、Mac 側
 
 ```bash
 pip install python-osc
-python osc_replay_ctrl.py 20261031_190643_raw.csv --port 9898 --loop
+python osc_replay_ctrl.py 20261031_190643_raw.csv --loop
 ```
 
-送り先の既定は 9871 で、いまの `innu.maxpat` は 9898 で受けている。そのため `--port 9898` を付ける。
+送り先は 9871 なので、`innu.maxpat` の `udpreceive` を 9871 にしておく（Isaac Sim を使うときは 9898）。
 再生・停止は Max から `/replay 1` / `/replay 0` をポート 9880 へ送る。`--start` と `--end` で範囲を秒で切り出せる。
 
 ### ルート追従（実機）
